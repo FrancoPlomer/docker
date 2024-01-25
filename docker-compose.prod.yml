@@ -1,0 +1,44 @@
+version: '3.8'
+
+# Definimos las imagenes que vamos a utilizar
+services:
+  #usamos app para hacer referencia al frontend
+  app:
+    build: ./frontend
+    ports:
+      - 80:5173
+    volumes:
+      - ./frontend/src:/app/src
+    environment:
+      VITE_API_URL: http://localhost:3000
+  #usamos app para hacer referencia al backend
+  api:
+    #Vamos a basarnos en el dockerfile del directorio backend
+    build: ./backend
+    #Definimos el puerto de acceso
+    ports:
+      - 3000:3000
+    #Indicamos el entorno de conexion a la bd, primero la imagen, segundo
+    #el nombre del service y por ultimo el volumen
+    environment:
+      DB_URL: mongodb://db/gamify
+    #Vamos a definir el volumen donde vamos a tomar los archivos de mi app y mapearlos en el contenedor
+    #De manera que, si tenemos que modificar el codigo, se refleje automaticamente en el contenedor
+    volumes:
+      - ./backend/app:/app/app
+    #Indica a que contenedor depende
+    depends_on:
+      - db
+  db:
+    #vamos a utilizar una imagen externa, la version focal es de ubuntu
+    image: mongo:5.0.19-focal
+    #Vamos a definir el puerto de la maquina anfitrion usando tambien el puerto por defecto de mongo, en este caso 27017
+    ports:
+      - 27017:27017
+    volumes:
+    #Indicamos el volumen a utilizar y la ruta a donde mapear
+      - gamify:/data/db
+#vamos a definir los volumenes
+volumes:
+  #Este es el nombre que va a tener el volumen
+  gamify:
