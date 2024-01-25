@@ -4,13 +4,15 @@ version: '3.8'
 services:
   #usamos app para hacer referencia al frontend
   app:
-    build: ./frontend
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+      args:
+        VITE_API_URL: http://170.64.171.185:3000
     ports:
-      - 80:5173
+      - 80:80
     volumes:
       - ./frontend/src:/app/src
-    environment:
-      VITE_API_URL: http://170.64.171.185:3000
   #usamos app para hacer referencia al backend
   api:
     #Vamos a basarnos en el dockerfile del directorio backend

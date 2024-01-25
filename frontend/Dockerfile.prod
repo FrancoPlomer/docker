@@ -1,0 +1,20 @@
+FROM node:20.5.0-alpine3.18 as build-stage
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+WORKDIR /app/
+COPY package*.json .
+RUN npm install
+COPY . .
+CMD ["npm", "run", "build"]
+
+#Ahora necesitamos un servidor web, usamos ngnix
+FROM nginx:1.25.1-alpine3.17-slim
+#En el siguiente comando le decimos que copie los archivos a partir
+#de aquellos creados en la fase anterior, indicamos la ruta dist
+#porque ahi se guardo todo en el build y decimos que los ponga
+#en nuestro servidor ngnix que se va a encargar de servir la app
+#la ruta de nginx esta en la documentacion
+COPY --from=build-stage /app/dist /usr/share/nginx/html
+EXPOSE 80
+#La documentacion indica que asi se debe ejecutar el comando
+CMD ["nginx", "-g", "daemon off;"]
